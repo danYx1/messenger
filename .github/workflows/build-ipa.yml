@@ -1,0 +1,59 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    # Файлы проекта лежат в подпапке messenger/ внутри репозитория
+    defaults:
+      run:
+        working-directory: messenger
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Sync web assets into iOS project
+        run: npx cap sync ios
+
+      # Разрешаем HTTP-запросы (нужно для подключения к серверу по локальному IP)
+      - name: Allow HTTP connections (App Transport Security)
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST" || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" "$PLIST" || true
+
+      - name: Build unsigned archive
+        run: |
+          xcodebuild -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath build/App.xcarchive \
+            archive CODE_SIGNING_ALLOWED=NO
+
+      - name: Package IPA
+        run: |
+          mkdir -p Payload
+          cp -R "build/App.xcarchive/Products/Applications/App.app" Payload/
+          zip -r Messenger.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Messenger-IPA
+          path: messenger/Messenger.ipa
