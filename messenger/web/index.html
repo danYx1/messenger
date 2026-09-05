@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Messenger</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="vendor/socket.io.min.js"></script>
+</head>
+<body>
+
+  <!-- Анимированный фон -->
+  <div class="bg">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+
+  <!-- Экран входа -->
+  <div id="login-screen" class="screen">
+    <div class="login-card">
+      <div class="logo">💬</div>
+      <h1>Messenger</h1>
+      <p class="subtitle">Сообщения, фото и смайлики в реальном времени</p>
+
+      <label for="nick">Твой ник</label>
+      <input id="nick" type="text" placeholder="Например, Данил" maxlength="20" autocomplete="off">
+
+      <label for="server">Адрес сервера</label>
+      <input id="server" type="text" placeholder="http://192.168.1.40:5000" autocomplete="off" autocapitalize="none">
+
+      <button id="joinBtn">Войти в чат</button>
+      <p id="login-error" class="error"></p>
+    </div>
+  </div>
+
+  <!-- Экран чата -->
+  <div id="chat-screen" class="screen hidden">
+    <header id="chat-header">
+      <div class="chat-avatar">💬</div>
+      <div class="chat-info">
+        <div class="chat-title">Общий чат</div>
+        <div id="status" class="status offline">подключение…</div>
+      </div>
+      <button id="leaveBtn">Выйти</button>
+    </header>
+
+    <main id="messages"></main>
+
+    <!-- Панель смайликов -->
+    <div id="emoji-panel" class="hidden"></div>
+
+    <footer id="input-bar">
+      <button id="emojiBtn" title="Смайлики">😊</button>
+      <button id="photoBtn" title="Фото">📎</button>
+      <input id="text" type="text" placeholder="Сообщение…" maxlength="500" autocomplete="off">
+      <button id="sendBtn">➤</button>
+    </footer>
+
+    <input type="file" id="fileInput" accept="image/*" hidden>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
